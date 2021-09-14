@@ -5,12 +5,16 @@ import "./BestBooks.css";
 import { withAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import Books from './Books'
+import { Button } from "react-bootstrap";
+import ModalForm from "./components/ModalForm";
+
 
 class MyFavoriteBooks extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       userBooks: [],
+      showModal: false
     };
   }
 
@@ -18,7 +22,7 @@ class MyFavoriteBooks extends React.Component {
     let { user } = this.props.auth0;
     let email = user.email;
     console.log(email);
-    let url = `http://localhost:3001/books?email=${email}`;
+    let url = `https://can-of-books-a.herokuapp.com/books?email=${email}`;
     axios
       .get(url)
       .then((result) => {
@@ -32,16 +36,48 @@ class MyFavoriteBooks extends React.Component {
         console.log("error");
       });
   };
+  handleShow = (e)=>{
+    e.preventDefault();
+   this.setState({
+     showModal: true
+   })
+  }
+  handleClose = () => {
+    this.setState({
+      showModal: false
+    })
+  }
+  newBook = (newData) =>{
+    this.setState({
+      userBooks : newData
+    })
+  } 
+  delete = (id) => {
+    let { user } = this.props.auth0;
+    let email = user.email;
+      
+    axios
+    .delete(`https://can-of-books-a.herokuapp.com/deletebook/${id}?email=${email}`)
+    .then(result=>{
+      this.setState({
+        userBooks : result.data
+      })
+    })
+  }
+ 
   render() {
     return (
       <Jumbotron>
         <h1>My Favorite Books</h1>
         <p>This is a collection of my favorite books</p>
+        <Button variant="primary" onClick={this.handleShow}>
+        Add book
+      </Button>
         {
-          this.state.userBooks.length > 0 &&  <Books book={this.state.userBooks} />
+          this.state.userBooks.length > 0 &&  <Books delete={this.delete} book={this.state.userBooks} />
         }
           
-        
+        <ModalForm newBook={this.newBook} show={this.state.showModal} close={this.handleClose}/>
        
       </Jumbotron>
     );
