@@ -14,6 +14,7 @@ class ModalForm extends React.Component {
   }
 
   addBook = () => {
+    this.props.close();
     let { user } = this.props.auth0;
     let email = user.email;
     const bookObj = {
@@ -26,7 +27,7 @@ class ModalForm extends React.Component {
     axios
     .post('https://can-of-books-a.herokuapp.com/addbook',bookObj)
       .then( (result)=>{
-        this.props.newBook(result)
+        this.props.newBook(result.data)
       })
       .catch(err=>{
         console.log('Error on adding data');
