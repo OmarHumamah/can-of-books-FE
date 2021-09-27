@@ -13,82 +13,93 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      moviesArr: [],
-      favMoviesArr: [],
+      flowersArr: [],
+      favFlowerArr: [],
     };
   }
 
   componentDidMount = () => {
-    axios.get(`http://localhost:3001/movies`).then((result) => {
-      this.setState({ moviesArr: result.data });
-      console.log(this.state.moviesArr);
-    });
-  };
-
-  addToFav = (t, img, des) => {
-    const { user, isAuthenticated } = this.props.auth0;
-    let email = user.email;
-
-    let movieObj = {
-      title: t,
-      img: img,
-      description: des,
-      email: email,
-    };
-    console.log(movieObj);
-
     axios
-      .post(`http://localhost:3001/addFav`, movieObj)
+      .get("http://localhost:3001/getflowers")
       .then((result) => {
         this.setState({
-          favMoviesArr: result.data,
+          flowersArr: result.data,
         });
       })
       .catch((err) => console.log(err));
   };
 
-  gitFavMovies = () => {
-    const { user, isAuthenticated } = this.props.auth0;
+  addToFav = (flower) => {
+    let { user, isAuthenticated } = this.props.auth0;
     let email = user.email;
+    console.log(email);
     axios
-      .get(`http://localhost:3001/getFav?email=${email}`)
+      .post(`http://localhost:3001/addtofav?email=${email}`, flower)
       .then((result) => {
+        console.log(result.data);
         this.setState({
-          favMoviesArr: result.data,
+          favFlowerArr: result.data,
         });
-        console.log(this.state.favMoviesArr);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  deleteMovie = (id) => {
-    const { user, isAuthenticated } = this.props.auth0;
+  getFavFlowers = () => {
+    let { user, isAuthenticated } = this.props.auth0;
     let email = user.email;
+    console.log(email);
+    axios
+      .get(`http://localhost:3001/getfavflowers?email=${email}`)
+      .then((result) => {
+        console.log(result.data);
+        this.setState({
+          favFlowerArr: result.data,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  delete = (id) => {
+    let { user, isAuthenticated } = this.props.auth0;
+    let email = user.email;
+    console.log(email);
     axios
       .delete(`http://localhost:3001/delete/${id}?email=${email}`)
       .then((result) => {
+        console.log(result.data);
         this.setState({
-          favMoviesArr: result.data,
+          favFlowerArr: result.data,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   update = (obj, id) => {
-    console.log(obj, id);
+    let { user, isAuthenticated } = this.props.auth0;
+    let email = user.email;
+    console.log(email);
     axios
-      .put(`http://localhost:3001/update/${id}`, obj)
+      .put(`http://localhost:3001/update/${id}?email=${email}`, obj)
       .then((result) => {
+        console.log(result.data);
         this.setState({
-          favMoviesArr: result.data,
+          favFlowerArr: result.data,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   render() {
-    const { user, isAuthenticated } = this.props.auth0;
-    console.log("app", this.props);
+    let { user, isAuthenticated } = this.props.auth0;
+    console.log(this.state.favFlowerArr);
     return (
       <>
         <Router>
@@ -99,8 +110,8 @@ class App extends React.Component {
                 {/* TODO: if the user is logged in, render the `BestBooks` component, if they are not, render the `Login` component */}
                 {isAuthenticated ? (
                   <BestBooks
-                    moviesArr={this.state.moviesArr}
-                    gitFav={this.addToFav}
+                    flowersArr={this.state.flowersArr}
+                    addToFav={this.addToFav}
                   />
                 ) : (
                   <Login />
@@ -110,10 +121,10 @@ class App extends React.Component {
               <Route exact path="/profile">
                 {isAuthenticated && (
                   <Profile
+                    favFlowerArr={this.state.favFlowerArr}
+                    getFavFlowers={this.getFavFlowers}
+                    delete={this.delete}
                     update={this.update}
-                    delete={this.deleteMovie}
-                    get={this.gitFavMovies}
-                    favMovies={this.state.favMoviesArr}
                   />
                 )}
               </Route>

@@ -1,68 +1,55 @@
-import React, { Component } from "react";
-import { withAuth0 } from "@auth0/auth0-react";
-import { Card, Row, Col, Image, Button } from "react-bootstrap";
+import React from "react";
+import { Row, Col, Card, Button } from "react-bootstrap";
 import UpdateModal from "./UpdateModal";
-import axios from "axios";
-class Profile extends Component {
-  constructor(props) {
-    super(props);
+class Profile extends React.Component {
+  constructor() {
+    super();
     this.state = {
       show: false,
-      UpdateObj: {},
+      obj: {},
     };
   }
 
   componentDidMount = () => {
-    this.props.get();
+    this.props.getFavFlowers();
+  };
+  show = () => {
+    this.setState({
+      show: true,
+    });
+  };
+  close = () => {
+    this.setState({
+      show: false,
+    });
   };
 
   render() {
-    const { user, isAuthenticated } = this.props.auth0;
     return (
       <>
-        {isAuthenticated && (
-          <>
-            <Card style={{ margin: "50px 20px", background: "gray" }}>
-              <Card.Header>Profile</Card.Header>
-              <Row>
-                <Col>
-                  <Card.Title>Hi {user.name}</Card.Title>
-                  <Card.Text>Here is your profile</Card.Text>
-                </Col>
-                <Col>
-                  <Image src={user.picture} roundedCircle />
-                </Col>
-              </Row>
-            </Card>
-          </>
-        )}
-        {console.log(this.props.favMovies)}
         <Row>
-          {this.props.favMovies.map((movie) => {
+          {this.props.favFlowerArr.map((flower) => {
             return (
               <Col>
                 <Card style={{ width: "18rem" }}>
-                  <Card.Header>{movie.title}</Card.Header>
+                  <Card.Img variant="top" src={flower.photo} />
                   <Card.Body>
-                    <Image
-                      src={`https://image.tmdb.org/t/p/w200${movie.img}`}
-                    />
-                    <Card.Text>{movie.description}</Card.Text>
+                    <Card.Title>{flower.name}</Card.Title>
+                    <Card.Text>{flower.instructions}</Card.Text>
                   </Card.Body>
                   <Card.Footer>
                     <Button
                       onClick={() => {
-                        this.props.delete(movie._id);
+                        this.props.delete(flower._id);
                       }}
                     >
-                      Delete
+                      delete
                     </Button>
+
                     <Button
                       onClick={() => {
-                        this.setState({
-                          show: true,
-                          UpdateObj: movie,
-                        });
+                        this.show();
+                        this.setState({ obj: flower });
                       }}
                     >
                       Update
@@ -75,12 +62,10 @@ class Profile extends Component {
         </Row>
         {this.state.show && (
           <UpdateModal
-            update={this.props.update}
-            selectedM={this.state.UpdateObj}
-            close={() => {
-              this.setState({ show: false });
-            }}
             show={this.state.show}
+            close={this.close}
+            flowerObj={this.state.obj}
+            update={this.props.update}
           />
         )}
       </>
@@ -88,4 +73,4 @@ class Profile extends Component {
   }
 }
 
-export default withAuth0(Profile);
+export default Profile;

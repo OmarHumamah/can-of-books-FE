@@ -1,23 +1,21 @@
 import React from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import { withAuth0 } from "@auth0/auth0-react";
+import { Modal, Form, Button } from "react-bootstrap";
 
 class UpdateModal extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      title: "",
-      description: "",
+      name: "someValue",
+      instructions: "",
+      photo: "",
     };
   }
 
   componentDidMount = () => {
-    const { user,isAuthenticated } = this.props.auth0;
-    let email = user.email;
     this.setState({
-      title: this.props.selectedM.title,
-      description: this.props.selectedM.description,
-      email: email
+      name: this.props.flowerObj.name,
+      instructions: this.props.flowerObj.instructions,
+      photo: this.props.flowerObj.photo,
     });
   };
 
@@ -30,38 +28,57 @@ class UpdateModal extends React.Component {
             this.props.close();
           }}
         >
-          <Modal.Header>Update</Modal.Header>
+          <Modal.Header closeButton>
+            <Modal.Title>UPDATE</Modal.Title>
+          </Modal.Header>
           <Modal.Body>
             <Form>
-              <Form.Label>title</Form.Label>
-              <Form.Control
-                defaultValue={this.state.title}
-                onChange={(e) => {
-                  this.setState({ title: e.target.value });
-                }}
-              ></Form.Control>
-              <br />
-              <Form.Label>description</Form.Label>
-              <Form.Control
-                as="textarea"
-                defaultValue={this.state.description}
-                onChange={(e) => {
-                  this.setState({ description: e.target.value });
-                }}
-              ></Form.Control>
+              <Form.Group
+                className="mb-3"
+                controlId="exampleForm.ControlInput1"
+              >
+                <Form.Label>name</Form.Label>
+                <Form.Control
+                  defaultValue={this.props.flowerObj.name}
+                  type="text"
+                  onChange={(e) => {
+                    this.setState({ name: e.target.value });
+                  }}
+                />
+              </Form.Group>
+              <Form.Group
+                className="mb-3"
+                controlId="exampleForm.ControlTextarea1"
+              >
+                <Form.Label>instructions</Form.Label>
+                <Form.Control
+                  defaultValue={this.props.flowerObj.instructions}
+                  as="textarea"
+                  rows={3}
+                  onChange={(e) => {
+                    this.setState({ instructions: e.target.value });
+                  }}
+                />
+              </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button  onClick={() => {
-                this.props.update(this.state, this.props.selectedM._id);
-                this.props.close();
-              }}>submit</Button>
             <Button
+              variant="secondary"
               onClick={() => {
                 this.props.close();
               }}
             >
               Close
+            </Button>
+            <Button
+              onClick={() => {
+                this.props.update(this.state, this.props.flowerObj._id);
+                this.props.close();
+              }}
+              variant="primary"
+            >
+              Save Changes
             </Button>
           </Modal.Footer>
         </Modal>
@@ -70,4 +87,4 @@ class UpdateModal extends React.Component {
   }
 }
 
-export default withAuth0(UpdateModal);
+export default UpdateModal;
